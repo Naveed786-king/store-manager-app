@@ -51,9 +51,25 @@ jobs:
         if: steps.build.outcome == 'failure'
         run: exit 1
 
+      - name: Rename APK for friendly filename
+        if: steps.build.outcome == 'success'
+        run: cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/StoreManager.apk
+
       - name: Upload APK artifact
         if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: store-manager-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish direct-download release
+        if: steps.build.outcome == 'success'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Store Manager build ${{ github.run_number }}
+          body: "Automatic build from commit ${{ github.sha }}. Download StoreManager.apk below and install directly - no zip extraction needed."
+          files: app/build/outputs/apk/debug/StoreManager.apk
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
