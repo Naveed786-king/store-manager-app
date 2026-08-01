@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,9 +30,29 @@ jobs:
           gradle-version: 8.7
 
       - name: Build Debug APK
-        run: gradle assembleDebug --stacktrace
+        id: build
+        run: gradle assembleDebug --stacktrace > build-log.txt 2>&1
+        continue-on-error: true
+
+      - name: Prepare log tail
+        if: always()
+        run: tail -c 60000 build-log.txt > build-log-tail.txt || cp build-log.txt build-log-tail.txt
+
+      - name: Commit log on failure
+        if: steps.build.outcome == 'failure'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f build-log-tail.txt
+          git commit -m "CI: add build log (failure) [skip ci]" || true
+          git push origin HEAD:main || true
+
+      - name: Fail job if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload APK artifact
+        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: store-manager-debug-apk
