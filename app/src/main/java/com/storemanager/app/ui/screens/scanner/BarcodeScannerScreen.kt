@@ -22,6 +22,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarcodeScannerScreen(onResult: (String) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current

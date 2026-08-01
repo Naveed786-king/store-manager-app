@@ -18,6 +18,7 @@ import com.storemanager.app.ui.repoViewModel
 import com.storemanager.app.util.PdfInvoiceGenerator
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoiceDetailScreen(saleId: Long, onBack: () -> Unit) {
     val vm = repoViewModel { SalesViewModel(it) }
