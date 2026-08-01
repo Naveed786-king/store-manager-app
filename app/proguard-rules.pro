@@ -1,0 +1,1 @@
+-keep class com.storemanager.app.data.entity.** { *; }
